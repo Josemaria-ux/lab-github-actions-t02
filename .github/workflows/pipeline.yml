@@ -106,6 +106,8 @@ jobs:
     name: Prueba taller 03
     runs-on: ubuntu-latest
     needs: test
+    outputs:
+      image-tag: ${{ steps.tag.outputs.value }}   # ← expone el output del job
     if: github.event_name != 'pull_request'
     steps:
       - name: Imprimir contexto
@@ -115,3 +117,26 @@ jobs:
           echo "Evento: ${{ github.event_name }}"
           echo "Actor: ${{ github.actor }}"
           echo "Runner OS: ${{ runner.os }}"
+      - name: Generar tag de imagen
+        id: tag           # ← necesario para referenciarlo después
+        run: |
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          echo "value=$SHORT_SHA" >> $GITHUB_OUTPUT
+
+      - name: Usar el tag
+        run: echo "Tag: ${{ steps.tag.outputs.value }}"
+
+      - name: Generar tag
+        id: tag
+        run: |
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          echo "value=$SHORT_SHA" >> $GITHUB_OUTPUT
+
+  taller03-2:
+    name: Prueba taller 03 v2
+    runs-on: ubuntu-latest
+    needs: taller03
+    if: github.event_name != 'pull_request'
+    steps:
+      - name: Usar tag del job anterior
+        run: echo "Escaneando imagen con tag ${{ needs.build.outputs.image-tag }}"
