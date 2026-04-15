@@ -107,7 +107,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     outputs:
-      image-tag: ${{ steps.tag.outputs.value }}   # ← expone el output del job
+      image-tag: ${{ steps.tag2.outputs.value }}   # ← expone el output del job
     if: github.event_name != 'pull_request'
     steps:
       - name: Imprimir contexto
@@ -124,10 +124,11 @@ jobs:
           echo "value=$SHORT_SHA" >> $GITHUB_OUTPUT
 
       - name: Usar el tag
-        run: echo "Tag: ${{ steps.tag.outputs.value }}"
+        run: |
+          echo "Tag: ${{ steps.tag.outputs.value }}"
 
       - name: Generar tag
-        id: tag
+        id: tag2
         run: |
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
           echo "value=$SHORT_SHA" >> $GITHUB_OUTPUT
