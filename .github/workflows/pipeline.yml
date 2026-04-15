@@ -7,11 +7,25 @@ on:
     branches: [main]
   workflow_dispatch:
 
+env:                         
+  APP_NAME: lab-github-actions
+  REGISTRY: docker.io
+  IMAGE_TAG: ${{ github.sha }}
+
 jobs:
   build:
     name: Build Docker Image
     runs-on: ubuntu-latest
+    env:                     
+      BUILD_TARGET: production
     steps:
+      - name: Usar variables
+        env:                  
+          STEP_VAR: valor-local
+        run: |
+          echo "App: $APP_NAME"
+          echo "Target: $BUILD_TARGET"
+          echo "Step var: $STEP_VAR"
       - name: Checkout código
         uses: actions/checkout@v4
 
@@ -87,3 +101,17 @@ jobs:
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/lab-github-actions:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/lab-github-actions:${{ github.sha }}
+
+  taller03:
+    name: Prueba taller 03
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name != 'pull_request'
+    steps:
+      - name: Imprimir contexto
+        run: |
+          echo "SHA: ${{ github.sha }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Evento: ${{ github.event_name }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "Runner OS: ${{ runner.os }}"
